@@ -3,8 +3,8 @@ TARGET_STATIC_LIB_DIR = ./lib
 TARGET = main
 
 #Dependencies
-DEPENDENCY_LIBS = 
-DEPENDENCY_INCLUDES = ./dependencies/
+DEPENDENCY_LIBS = ./dependencies/BufferLib/bufferlib.a
+DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/Include
 
 INCLUDES= -I.\include $(addprefix -I, $(DEPENDENCY_INCLUDES))
 SOURCES= $(wildcard source/*.c)
@@ -16,7 +16,7 @@ DEBUG_DEFINES =  -DGLOBAL_DEBUG -DDEBUG
 RELEASE_DEFINES =  -DGLOBAL_RELEASE -DRELEASE
 DEFINES = 
 
-COMPILER_FLAGS= -m64
+COMPILER_FLAGS= -m64 -g
 COMPILER = gcc
 ARCHIVER_FLAGS = -rc
 ARCHIVER = ar
@@ -72,5 +72,5 @@ clean:
 	del main.exe
 	del $(subst /,\, $(TARGET_STATIC_LIB))
 	rmdir $(subst /,\, $(TARGET_STATIC_LIB_DIR))
-# 	$(MAKE) --directory=./dependencies/HPML clean
+	$(MAKE) --directory=./dependencies/BufferLib clean
 # 	$(MAKE) --directory=./dependencies/tgc clean
