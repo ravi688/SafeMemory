@@ -6,7 +6,7 @@ TARGET = main
 DEPENDENCY_LIBS = ./dependencies/BufferLib/lib/bufferlib.a
 DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/include ./dependencies/TemplateSystem/include ./shared-dependencies/CallTrace/include
 
-INCLUDES= -I.\include $(addprefix -I, $(DEPENDENCY_INCLUDES))
+INCLUDES= -I.\include -I.\include\safe_memory $(addprefix -I, $(DEPENDENCY_INCLUDES))
 SOURCES= $(wildcard source/*.c)
 OBJECTS= $(addsuffix .o, $(basename $(SOURCES)))
 LIBS = 

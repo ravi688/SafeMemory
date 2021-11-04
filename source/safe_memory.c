@@ -1,12 +1,7 @@
-
-
-#include <stdint.h>
-#include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <buffer.h>
-#include <debug.h>
-
-#include <safe_memory/safe_memory.h>
+#include <safe_memory.h>
 
 static pBUFFER allocationList = BUF_INVALID;
 
@@ -14,7 +9,7 @@ static pBUFFER allocationList = BUF_INVALID;
 #	undef ASSERT
 #endif
 
-#if defined(GLOBAL_DEBUG) && defined(LOG_DEBUG)
+#if defined(SAFE_MEMORY_DEBUG)
 #	define ASSERT(boolean, ...)\
 	do\
 	{\
@@ -36,9 +31,27 @@ typedef struct
 	u64 size;
 } allocationData_t;
 
+#define HEAD_BYTE(basePtr) (*((u8*)basePtr - 1))
+
 static bool comparer(void* basePtr, void* data);
 
-function_signature(void*, register_allocation, void* basePtr, u64 size)
+function_signature(static void*, register_allocation, void* basePtr, u64 size);
+#define register_allocation(...) define_alias_function_macro(register_allocation, __VA_ARGS__)
+
+
+function_signature(void*, register_stack_allocation, void* basePtr, u64 size)
+{
+	HEAD_BYTE(basePtr) = 0;		//stack allocation
+	return register_allocation(basePtr, size);
+}
+
+function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
+{
+	HEAD_BYTE(basePtr) = 1;		//heap allocation
+	return register_allocation(basePtr, size);
+}
+
+function_signature(static void*, register_allocation, void* basePtr, u64 size)
 {
 	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL", size);
 	BUFpush_binded();
@@ -60,7 +73,9 @@ function_signature(void, safe_free, void* basePtr)
 	BUFpush_binded();
 	BUFbind(allocationList);
 	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, "Invalid Base Address");
-	free(basePtr); 
+	if(HEAD_BYTE(basePtr))
+		free(&HEAD_BYTE(basePtr)); 
+	
 	bool result = BUFremove(basePtr, comparer);
 	ASSERT(result == true, "Failed to remove Base Address %p from allocationList", basePtr);
 	BUFpop_binded();
@@ -78,8 +93,8 @@ function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 	allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, index);
 	ASSERT(data != NULL, "allocationData_t* data == NULL");
 	ASSERT(data->basePtr == basePtr, "data->basePtr != basePtr");
-	ASSERT(((data->basePtr + data->size) > bytePtr), "Out of bound memory access! data->basePtr + data->size) < bytePt");
-	ASSERT(data->basePtr < bytePtr, "Out of bound memory access! data->basePtr < bytePtr");
+	ASSERT((data->basePtr - 1 + data->size) >= bytePtr, "Out of bound memory access! (data->basePtr + data->size) =< bytePt");
+	ASSERT(data->basePtr <= bytePtr, "Out of bound memory access! data->basePtr > bytePtr");
 	BUFpop_binded();
 	return bytePtr;
 }
