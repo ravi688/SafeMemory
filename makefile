@@ -3,8 +3,8 @@ TARGET_STATIC_LIB_DIR = ./lib
 TARGET = main
 
 #Dependencies
-DEPENDENCY_LIBS = ./dependencies/BufferLib/bufferlib.a
-DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/Include
+DEPENDENCY_LIBS = ./dependencies/BufferLib/lib/bufferlib.a
+DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/include ./dependencies/TemplateSystem/include
 
 INCLUDES= -I.\include $(addprefix -I, $(DEPENDENCY_INCLUDES))
 SOURCES= $(wildcard source/*.c)
@@ -12,8 +12,8 @@ OBJECTS= $(addsuffix .o, $(basename $(SOURCES)))
 LIBS = 
 
 #Flags and Defines
-DEBUG_DEFINES =  -DGLOBAL_DEBUG -DDEBUG
-RELEASE_DEFINES =  -DGLOBAL_RELEASE -DRELEASE
+DEBUG_DEFINES =  -DGLOBAL_DEBUG -DDEBUG -DLOG_DEBUG
+RELEASE_DEFINES =  -DGLOBAL_RELEASE -DRELEASE -DLOG_DEBUG
 DEFINES = 
 
 COMPILER_FLAGS= -m64 -g
@@ -63,8 +63,8 @@ $(TARGET_STATIC_LIB) : PRINT_MESSAGE $(filter-out source/main.o, $(OBJECTS)) | $
 
 $(TARGET): $(DEPENDENCY_LIBS) $(TARGET_STATIC_LIB) source/main.o
 	$(COMPILER) $(COMPILER_FLAGS) source/main.o $(LIBS) \
-	$(addprefix -L, $(dir $(DEPENDENCY_LIBS) $(TARGET_STATIC_LIB))) \
-	$(addprefix -l:, $(notdir $(DEPENDENCY_LIBS) $(TARGET_STATIC_LIB))) \
+	$(addprefix -L, $(dir $(TARGET_STATIC_LIB) $(DEPENDENCY_LIBS))) \
+	$(addprefix -l:, $(notdir $(TARGET_STATIC_LIB) $(DEPENDENCY_LIBS))) \
 	-o $@
 
 clean: 
