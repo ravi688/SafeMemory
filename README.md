@@ -1,2 +1,3 @@
-# TemplateRepository
-This repository contains template for a project in C language
+# SafeMemory
+
+SafeMemory can be used for memory protection, stack overflow and out of bound memory checking.
