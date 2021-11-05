@@ -3,8 +3,8 @@ TARGET_STATIC_LIB_DIR = ./lib
 TARGET = main
 
 #Dependencies
-DEPENDENCY_LIBS = ./dependencies/BufferLib/lib/bufferlib.a
-DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/include  ./shared-dependencies/CallTrace/include
+DEPENDENCY_LIBS = ../../shared-dependencies/BufferLib/lib/bufferlib.a
+DEPENDENCY_INCLUDES = ./dependencies/ ../../shared-dependencies/BufferLib/include  ./shared-dependencies/CallTrace/include
 
 INCLUDES= -I.\include -I.\include\safe_memory $(addprefix -I, $(DEPENDENCY_INCLUDES))
 SOURCES= $(wildcard source/*.c)
@@ -47,7 +47,7 @@ debug: $(TARGET)
 %.o : %.c
 	$(COMPILER) $(COMPILER_FLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-./dependencies/%.a:
+./dependencies/%.a ../../shared-dependencies/%.a:
 	@echo [Log] Building $@ ...
 	$(MAKE) --directory=$(subst lib/, ,$(dir $@)) $(__STATIC_LIB_COMMAND)
 	@echo [Log] $@ built successfully!
@@ -74,5 +74,5 @@ clean:
 	del main.exe
 	del $(subst /,\, $(TARGET_STATIC_LIB))
 	rmdir $(subst /,\, $(TARGET_STATIC_LIB_DIR))
-	$(MAKE) --directory=./dependencies/BufferLib clean
+	$(MAKE) --directory=../../shared-dependencies/BufferLib clean
 # 	$(MAKE) --directory=./dependencies/tgc clean
