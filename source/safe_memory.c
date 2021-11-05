@@ -95,6 +95,7 @@ function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 	allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, index);
 	ASSERT(data != NULL, "allocationData_t* data == NULL");
 	ASSERT(data->basePtr == basePtr, "data->basePtr != basePtr");
+	//TODO: replace data->basePtr - 1 with &HEAD_BYTE(basePtr)
 	ASSERT((data->basePtr - 1 + data->size) >= bytePtr, "Out of bound memory access! (data->basePtr + data->size) =< bytePt");
 	ASSERT(data->basePtr <= bytePtr, "Out of bound memory access! data->basePtr > bytePtr");
 	BUFpop_binded();
