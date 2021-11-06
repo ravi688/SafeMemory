@@ -3,6 +3,8 @@
 #include <stdarg.h>
 #include <memory.h>
 #include <buffer.h>
+
+#define IMPLEMENTATION
 #include <safe_memory.h>
 
 static pBUFFER allocationList = BUF_INVALID;
@@ -117,46 +119,64 @@ function_signature_void(void, safe_memory_terminate)
 	BUFpop_binded();
 }
 
-void* safe_array(void* buffer, u64 count, u64 size, ...)
-{
-	void* ptr = &size; ptr += 8/*bytes*/;
-	u64 i = 0;
-	while(i < count)
-	{
-		memcpy(buffer + size * i, ptr, size);
-		ptr += size;
-		i++;
-	}
-	return buffer;
-}
 
-void* safe_struct_array(void* buffer, u64 count, u64 size, ...)
-{
-	va_list args;
-	va_start(args, size); 
-	u64 i = 0;
-	while(count > 0)
-	{
-		typedef struct  { u8 bytes[size]; } _data;
-		_data b;
-		b = va_arg(args, _data);
-		memcpy(buffer + i * size, &b, size);
-		--count;
-		++i;
-	}
-	return buffer;
-}
+// void* safe_array_float(void* buffer, u64 count, ...)
+// {
+// 	va_list args;
+// 	va_start(args, count);
+// 	float* _buffer = (float*)buffer;
+// 	u64 i = 0;
+// 	while(count > 0)
+// 	{
+// 		_buffer[i] = (float)va_arg(args, double);
+// 		i++;
+// 		count++;
+// 	}
+// 	va_end(args);
+// 	return buffer;
+// }
 
-#ifdef SAFE_MEMORY_DEBUG
-function_signature(u64, should_be_greater_than_word_size, u64 size)
-{
-	ASSERT(size > sizeof(u64), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)");
-	return size;
-}
 
-function_signature(u64, should_be_equal_to_word_size, u64 size)
-{
-	ASSERT(size == sizeof(u64), "size != sizeof(u64)");
-	return size;
-}
-#endif
+// void* safe_array(void* buffer, u64 count, u64 size, ...)
+// {
+// 	void* ptr = &size; ptr += 8/*bytes*/;
+// 	u64 i = 0;
+// 	while(i < count)
+// 	{
+// 		memcpy(buffer + size * i, ptr, size);
+// 		ptr += size;
+// 		i++;
+// 	}
+// 	return buffer;
+// }
+
+// void* safe_struct_array(void* buffer, u64 count, u64 size, ...)
+// {
+// 	va_list args;
+// 	va_start(args, size); 
+// 	u64 i = 0;
+// 	while(count > 0)
+// 	{
+// 		typedef struct  { u8 bytes[size]; } _data;
+// 		_data b;
+// 		b = va_arg(args, _data);
+// 		memcpy(buffer + i * size, &b, size);
+// 		--count;
+// 		++i;
+// 	}
+// 	return buffer;
+// }
+
+// #ifdef SAFE_MEMORY_DEBUG
+// function_signature(u64, should_be_greater_than_word_size, u64 size)
+// {
+// 	// ASSERT(size > sizeof(u64), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)");
+// 	return size;
+// }
+
+// function_signature(u64, should_be_equal_to_word_size, u64 size)
+// {
+// 	// ASSERT(size == sizeof(u64), "size != sizeof(u64)");
+// 	return size;
+// }
+// #endif
