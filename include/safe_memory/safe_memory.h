@@ -41,6 +41,7 @@
 #include <calltrace.h>
 
 /*User*/
+#define checked(basePtr, size) register_stack_allocation(basePtr, size)
 #define checked_ref(type, basePtr, index) (*(type*)safe_check((void*)((basePtr) + (index)), (void*)(basePtr)) )
 #define checked_malloc(size) safe_malloc(size)
 #define checked_alloca(size) safe_alloca(size)
@@ -74,9 +75,9 @@ function_signature(void*, register_stack_allocation, void* basePtr, u64 size);
 function_signature(void*, register_heap_allocation, void* basePtr, u64 size);
 
 #ifdef SAFE_MEMORY_DEBUG
-	#define should_be_greater_than_word_size(...) define_alias_function_macro(should_be_greater_than_word_size, __VA_ARGS__)
+#	define should_be_greater_than_word_size(...) define_alias_function_macro(should_be_greater_than_word_size, __VA_ARGS__)
 	function_signature(u64, should_be_greater_than_word_size, u64 size);
-	#define should_be_equal_to_word_size(...) define_alias_function_macro(should_be_equal_to_word_size, __VA_ARGS__)
+#	define should_be_equal_to_word_size(...) define_alias_function_macro(should_be_equal_to_word_size, __VA_ARGS__)
 	function_signature(u64, should_be_equal_to_word_size, u64 size);
 #else
 #	define should_be_greater_than_word_size(x) x
