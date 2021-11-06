@@ -18,7 +18,7 @@ instantiate_declaration_safe_array(float);
 instantiate_declaration_safe_array(double);
 instantiate_declaration_safe_array(char);
 
-#ifdef IMPLEMENTATION
+#ifdef SAFE_MEMORY_IMPLEMENTATION
 instantiate_implementation_safe_array(double);
 instantiate_implementation_safe_array(u64);
 instantiate_implementation_safe_array(s64);
