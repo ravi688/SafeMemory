@@ -41,12 +41,12 @@
 #include <calltrace.h>
 
 /*User*/
-#define checked_ref(type, basePtr, index) (*(type*)safe_check(basePtr + index, basePtr) )
+#define checked_ref(type, basePtr, index) (*(type*)safe_check((void*)((basePtr) + (index)), (void*)(basePtr)) )
 #define checked_malloc(size) safe_malloc(size)
 #define checked_alloca(size) safe_alloca(size)
-#define checked_free(ptr) safe_free(ptr)
-#define checked_array(type, count, ...) safe_array(checked_alloca(should_be_equal_to_word_size(sizeof(type)) * count), count, sizeof(type), __VA_ARGS__)
-#define checked_struct_array(type, count, ...) safe_struct_array(checked_alloca(should_be_greater_than_word_size(sizeof(type)) * count), count, sizeof(type), __VA_ARGS__)
+#define checked_free(ptr) safe_free((void*)ptr)
+#define checked_array(type, count, ...) safe_array(checked_alloca(should_be_equal_to_word_size(sizeof(type)) * (count)), (count), sizeof(type), __VA_ARGS__)
+#define checked_struct_array(type, count, ...) safe_struct_array(checked_alloca(should_be_greater_than_word_size(sizeof(type)) * (count)), (count), sizeof(type), __VA_ARGS__)
 
 
 #define safe_memory_init(...) define_alias_function_void_macro(safe_memory_init)
