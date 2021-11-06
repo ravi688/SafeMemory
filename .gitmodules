@@ -4,3 +4,6 @@
 [submodule "shared-dependencies/CallTrace"]
 	path = shared-dependencies/CallTrace
 	url = https://github.com/ravi688/CallTrace.git
+[submodule "dependencies/TemplateSystem"]
+	path = dependencies/TemplateSystem
+	url = https://github.com/ravi688/TemplateSystem.git

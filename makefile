@@ -4,7 +4,7 @@ TARGET = main
 
 #Dependencies
 DEPENDENCY_LIBS = ../../shared-dependencies/BufferLib/lib/bufferlib.a
-DEPENDENCY_INCLUDES = ./dependencies/ ../../shared-dependencies/BufferLib/include  ./shared-dependencies/CallTrace/include
+DEPENDENCY_INCLUDES = ./dependencies/ ../../shared-dependencies/BufferLib/include ./dependencies/TemplateSystem/include  ./shared-dependencies/CallTrace/include
 
 INCLUDES= -I.\include -I.\include\safe_memory $(addprefix -I, $(DEPENDENCY_INCLUDES))
 SOURCES= $(wildcard source/*.c)
