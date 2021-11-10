@@ -38,7 +38,7 @@
 #	endif
 #endif
 
-#include <calltrace.h>
+#include <calltrace/calltrace.h>
 
 #include <safe_memory/template_instantiations.h>
 

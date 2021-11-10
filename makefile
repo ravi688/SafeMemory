@@ -3,7 +3,7 @@ TARGET_STATIC_LIB_DIR = ./lib
 TARGET = main
 
 #Dependencies
-DEPENDENCY_LIBS = ./dependencies/BufferLib/lib/bufferlib.a
+DEPENDENCY_LIBS = ./dependencies/BufferLib/lib/bufferlib.a ./shared-dependencies/CallTrace/lib/calltrace.a
 DEPENDENCY_INCLUDES = ./dependencies/ ./dependencies/BufferLib/include ./dependencies/TemplateSystem/include  ./shared-dependencies/CallTrace/include
 
 INCLUDES= -I.\include -I.\include\safe_memory $(addprefix -I, $(DEPENDENCY_INCLUDES))
@@ -49,7 +49,7 @@ debug: $(TARGET)
 %.o : %.c
 	$(COMPILER) $(COMPILER_FLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-./dependencies/%.a:
+%.a:
 	@echo [Log] Building $@ ...
 	$(MAKE) --directory=$(subst lib/, ,$(dir $@)) $(__STATIC_LIB_COMMAND)
 	@echo [Log] $@ built successfully!
