@@ -49,11 +49,8 @@ debug: $(TARGET)
 %.o : %.c
 	$(COMPILER) $(COMPILER_FLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
-<<<<<<< HEAD
-./dependencies/%.a ../../shared-dependencies/%.a:
-=======
+
 %.a:
->>>>>>> 6e4598ffecf1f3dbcdfa053c586bd082c37ca153
 	@echo [Log] Building $@ ...
 	$(MAKE) --directory=$(subst lib/, ,$(dir $@)) $(__STATIC_LIB_COMMAND)
 	@echo [Log] $@ built successfully!
