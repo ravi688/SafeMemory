@@ -16,7 +16,7 @@ STATIC_LIB_NAME = safemem.a
 DYNAMIC_LIB_NAME = #safemem.dll
 EXECUTABLE_NAME = main.exe
 DEPENDENCIES = ../../../shared-dependencies/BufferLib TemplateSystem
-DEPENDENCY_LIBS = BufferLib/lib/bufferlib.a
+DEPENDENCY_LIBS = ../../../shared-dependencies/BufferLib/lib/bufferlib.a
 DEPENDENCIES_DIR = ./dependencies
 SHARED_DEPENDENCIES = CallTrace
 SHARED_DEPENDENCY_LIBS = CallTrace/lib/calltrace.a
@@ -171,13 +171,14 @@ $(TARGET): $(__DEPENDENCY_LIBS) $(__SHARED_DEPENDENCY_LIBS) $(TARGET_STATIC_LIB)
 	-o $@
 	@echo [Log] $(PROJECT_NAME) built successfully!
 
-bin-clean: 
+bin-clean:
 	del $(addprefix source\, $(notdir $(OBJECTS)))
 	del $(__EXECUTABLE_NAME)
 	del $(subst /,\, $(TARGET_STATIC_LIB))
 	rmdir $(subst /,\, $(TARGET_STATIC_LIB_DIR))
 	@echo [Log] Binaries cleaned successfully!
 	$(MAKE) --directory=./shared-dependencies/CallTrace clean
+	$(MAKE) --directory=../../../shared-dependencies/BufferLib clean
 # 	$(MAKE) --directory=./dependencies/HPML clean
 # 	$(MAKE) --directory=../../shared-dependencies/BufferLib clean
 #  	$(MAKE) --directory=./dependencies/tgc clean
