@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <defines.h>
+#include <safe_memory/defines.h>
 #include <stdlib.h>
 
 #ifdef GLOBAL_RELEASE

@@ -1,0 +1,12 @@
+
+digraph SafeMemory
+{
+	#define digraph subgraph
+	#include <BufferLib.gv>
+	#define digraph subgraph
+	#include <CallTrace.gv>
+	#undef digraph
+
+	BufferLib -> SafeMemory;
+	CallTrace -> SafeMemory;
+}
