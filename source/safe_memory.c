@@ -5,7 +5,7 @@
 #include <buffer.h>
 
 #define SAFE_MEMORY_IMPLEMENTATION
-#include <safe_memory.h>
+#include <safe_memory/safe_memory.h>
 
 static pBUFFER allocationList = BUF_INVALID;
 

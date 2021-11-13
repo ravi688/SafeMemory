@@ -3,7 +3,7 @@
 
 #include <safe_memory/template_defintions.h>
 
-#include <defines.h>
+#include <safe_memory/defines.h>
 
 
 instantiate_declaration_safe_array(u8);
