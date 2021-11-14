@@ -178,7 +178,7 @@ bin-clean:
 	rmdir $(subst /,\, $(TARGET_STATIC_LIB_DIR))
 	@echo [Log] Binaries cleaned successfully!
 	$(MAKE) --directory=./shared-dependencies/CallTrace clean
-	$(MAKE) --directory=../../../shared-dependencies/BufferLib clean
+	$(MAKE) --directory=../../shared-dependencies/BufferLib clean
 # 	$(MAKE) --directory=./dependencies/HPML clean
 # 	$(MAKE) --directory=../../shared-dependencies/BufferLib clean
 #  	$(MAKE) --directory=./dependencies/tgc clean
