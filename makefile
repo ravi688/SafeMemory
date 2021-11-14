@@ -15,11 +15,11 @@ PROJECT_NAME = SafeMemory
 STATIC_LIB_NAME = safemem.a
 DYNAMIC_LIB_NAME = #safemem.dll
 EXECUTABLE_NAME = main.exe
-DEPENDENCIES = BufferLib TemplateSystem
-DEPENDENCY_LIBS = BufferLib/lib/bufferlib.a
+DEPENDENCIES = ../../BufferLib TemplateSystem
+DEPENDENCY_LIBS = ../../BufferLib/lib/bufferlib.a
 DEPENDENCIES_DIR = ./dependencies
-SHARED_DEPENDENCIES = CallTrace
-SHARED_DEPENDENCY_LIBS = CallTrace/lib/calltrace.a
+SHARED_DEPENDENCIES = ../../BufferLib/dependencies/CallTrace
+SHARED_DEPENDENCY_LIBS = ../../BufferLib/dependencies/CallTrace/lib/calltrace.a
 SHARED_DEPENDENCIES_DIR = ./shared-dependencies
 #-------------------------------------------
 
@@ -176,8 +176,8 @@ bin-clean:
 	del $(subst /,\, $(TARGET_STATIC_LIB))
 	rmdir $(subst /,\, $(TARGET_STATIC_LIB_DIR))
 	@echo [Log] Binaries cleaned successfully!
-	$(MAKE) --directory=./dependencies/BufferLib clean
-	$(MAKE) --directory=./shared-dependencies/CallTrace clean
+	$(MAKE) --directory=./dependencies/../../BufferLib clean
+	$(MAKE) --directory=./shared-dependencies/../../BufferLib/dependencies/CallTrace clean
 # 	$(MAKE) --directory=./dependencies/HPML clean
 # 	$(MAKE) --directory=../../shared-dependencies/BufferLib clean
 #  	$(MAKE) --directory=./dependencies/tgc clean
