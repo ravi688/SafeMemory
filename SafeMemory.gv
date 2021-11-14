@@ -1,4 +1,6 @@
 
+#pragma once
+
 digraph SafeMemory
 {
 	#define digraph subgraph
