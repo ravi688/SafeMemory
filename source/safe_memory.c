@@ -7,27 +7,9 @@
 #define SAFE_MEMORY_IMPLEMENTATION
 #include <safe_memory/safe_memory.h>
 
+#include <safe_memory/assert.h>
+
 static pBUFFER allocationList = BUF_INVALID;
-
-#ifdef ASSERT
-#	undef ASSERT
-#endif
-
-#if defined(SAFE_MEMORY_DEBUG)
-#	define ASSERT(boolean, ...)\
-	do\
-	{\
-		if(!(boolean))\
-		{\
-			printf("Assertion Failed: ");\
-			printf(__VA_ARGS__);\
-			printf(", at %u, %s, %s\n", __line__, __function__, __file__);\
-			exit(0);\
-		}\
-	} while(0)
-#else
-#	define ASSERT(boolean, ...)
-#endif
 
 typedef struct 
 {
