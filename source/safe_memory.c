@@ -49,7 +49,7 @@ function_signature(static void*, register_allocation, void* basePtr, u64 size)
 	if(result != BUF_INVALID_INDEX)
 	{
 		allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, result);
-		if (data->basePtr == basePtr) && (data->size != size) 
+		if ((data->basePtr == basePtr) && (data->size != size))
 			data->size = size;
 		BUFpop_binded();
 		return basePtr;
