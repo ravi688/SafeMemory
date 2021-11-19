@@ -39,10 +39,18 @@ function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
 
 function_signature(static void*, register_allocation, void* basePtr, u64 size)
 {
-	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL", size);
+	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL\n", size);
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(BUFfind_index_of(basePtr, comparer) == BUF_INVALID_INDEX, "%p is already in use!", basePtr);
+	buf_ucount_t result = BUFfind_index_of(basePtr, comparer);
+	#ifndef SAFE_MEMORY_ALREADY_IN_USE_IGNORE
+	ASSERT(result == BUF_INVALID_INDEX, "%p is already in use!\n", basePtr);
+	#else
+	if(result == BUF_INVALID_INDEX)
+	{
+		BUFpop_binded();
+	}
+	#endif
 	allocationData_t data =  { basePtr, size };
 	BUFpush(&data);
 	BUFpop_binded();
@@ -63,7 +71,7 @@ function_signature(void, safe_free, void* basePtr)
 		free(&HEAD_BYTE(basePtr)); 
 	
 	bool result = BUFremove(basePtr, comparer);
-	ASSERT(result == true, "Failed to remove Base Address %p from allocationList", basePtr);
+	ASSERT(result == true, "Failed to remove Base Address %p from allocationList\n", basePtr);
 	BUFpop_binded();
 }
 
