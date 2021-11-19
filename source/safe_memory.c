@@ -46,9 +46,13 @@ function_signature(static void*, register_allocation, void* basePtr, u64 size)
 	#ifndef SAFE_MEMORY_ALREADY_IN_USE_IGNORE
 	ASSERT(result == BUF_INVALID_INDEX, "%p is already in use!\n", basePtr);
 	#else
-	if(result == BUF_INVALID_INDEX)
+	if(result != BUF_INVALID_INDEX)
 	{
+		allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, result);
+		if (data->basePtr == basePtr) && (data->size != size) 
+			data->size = size;
 		BUFpop_binded();
+		return basePtr;
 	}
 	#endif
 	allocationData_t data =  { basePtr, size };
