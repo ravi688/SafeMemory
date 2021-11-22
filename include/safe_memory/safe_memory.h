@@ -44,7 +44,8 @@
 
 
 #define checked(basePtr, size) register_stack_allocation((void*)(basePtr), size)
-#define checked_ref(type, basePtr, index) (*(type*)safe_check((void*)((basePtr) + (index)), (void*)(basePtr)) )
+#define checked_ref(type, basePtr, index) (*checked_refp(type, basePtr, index))
+#define checked_refp(type, basePtr, index) ((type*)safe_check((void*)((basePtr) + (index)), (void*)(basePtr)))
 #define checked_malloc(size) safe_malloc(size)
 #define checked_alloca(size) safe_alloca(size)
 #define checked_free(ptr) safe_free((void*)ptr)
