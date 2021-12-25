@@ -2,7 +2,12 @@
 #pragma once
 
 #include <safe_memory/defines.h>
-#include <stdlib.h>
+
+#ifdef __cplusplus
+#	include <cstdlib>
+#else
+#	include <stdlib.h>
+#endif
 
 #ifdef GLOBAL_RELEASE
 #	ifndef SAFE_MEMORY_RELEASE
@@ -42,6 +47,9 @@
 
 #include <safe_memory/template_instantiations.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define checked(basePtr, size) register_stack_allocation((void*)(basePtr), size)
 #define checked_ref(type, basePtr, index) (*checked_refp(type, basePtr, index))
@@ -74,3 +82,7 @@ function_signature(void*, safe_check, void* bytePtr, void* basePtr);
 function_signature(void*, register_stack_allocation, void* basePtr, u64 size);
 #define register_heap_allocation(...) define_alias_function_macro(register_heap_allocation, __VA_ARGS__)
 function_signature(void*, register_heap_allocation, void* basePtr, u64 size);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,8 +1,11 @@
 
 #pragma once
 
-
-#include <stdint.h>
+#ifdef __cplusplus
+#	include <cstdint>
+#else
+#	include <stdint.h>
+#endif
 
 typedef uint32_t u32;
 typedef uint64_t u64;

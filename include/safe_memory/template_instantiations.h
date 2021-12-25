@@ -5,6 +5,9 @@
 
 #include <safe_memory/defines.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 instantiate_declaration_safe_array(u8);
 instantiate_declaration_safe_array(u16);
@@ -152,3 +155,6 @@ s32* safe_array(s32)(void* buffer, u64 count, ...)
 #endif
 
 
+#ifdef __cplusplus
+}
+#endif

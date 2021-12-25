@@ -3,6 +3,10 @@
 
 #include <template_system.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define safe_array(T) template(safe_array, T)
 #define instantiate_declaration_safe_array(T) T* safe_array(T)(void* buffer, u64 count, ...)
 #define instantiate_implementation_safe_array(T) T* safe_array(T)(void* buffer, u64 count, ...)\
@@ -21,3 +25,6 @@
 	return buffer;\
 }
 
+#ifdef __cplusplus
+}
+#endif
