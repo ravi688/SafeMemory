@@ -7,27 +7,9 @@
 #define SAFE_MEMORY_IMPLEMENTATION
 #include <safe_memory/safe_memory.h>
 
+#include <safe_memory/assert.h>
+
 static pBUFFER allocationList = BUF_INVALID;
-
-#ifdef ASSERT
-#	undef ASSERT
-#endif
-
-#if defined(SAFE_MEMORY_DEBUG)
-#	define ASSERT(boolean, ...)\
-	do\
-	{\
-		if(!(boolean))\
-		{\
-			printf("Assertion Failed: ");\
-			printf(__VA_ARGS__);\
-			printf(", at %u, %s, %s\n", __line__, __function__, __file__);\
-			exit(0);\
-		}\
-	} while(0)
-#else
-#	define ASSERT(boolean, ...)
-#endif
 
 typedef struct 
 {
@@ -57,10 +39,22 @@ function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
 
 function_signature(static void*, register_allocation, void* basePtr, u64 size)
 {
-	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL", size);
+	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL\n", size);
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(BUFfind_index_of(basePtr, comparer) == BUF_INVALID_INDEX, "%p is already in use!", basePtr);
+	buf_ucount_t result = BUFfind_index_of(basePtr, comparer);
+	#ifndef SAFE_MEMORY_ALREADY_IN_USE_IGNORE
+	ASSERT(result == BUF_INVALID_INDEX, "%p is already in use!\n", basePtr);
+	#else
+	if(result != BUF_INVALID_INDEX)
+	{
+		allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, result);
+		if ((data->basePtr == basePtr) && (data->size != size))
+			data->size = size;
+		BUFpop_binded();
+		return basePtr;
+	}
+	#endif
 	allocationData_t data =  { basePtr, size };
 	BUFpush(&data);
 	BUFpop_binded();
@@ -76,43 +70,43 @@ function_signature(void, safe_free, void* basePtr)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, "Invalid Base Address");
+	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, "Invalid Base Address\n");
 	if(HEAD_BYTE(basePtr))
 		free(&HEAD_BYTE(basePtr)); 
 	
 	bool result = BUFremove(basePtr, comparer);
-	ASSERT(result == true, "Failed to remove Base Address %p from allocationList", basePtr);
+	ASSERT(result == true, "Failed to remove Base Address %p from allocationList\n", basePtr);
 	BUFpop_binded();
 }
 
 function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 {
-	ASSERT(bytePtr != NULL, "bytePtr is NULL");
-	ASSERT(basePtr != NULL, "basePtr is NULL");
+	ASSERT(bytePtr != NULL, "bytePtr is NULL\n");
+	ASSERT(basePtr != NULL, "basePtr is NULL\n");
 	BUFpush_binded();
 	BUFbind(allocationList);
 	buf_ucount_t index;
-	ASSERT((index = BUFfind_index_of(basePtr, comparer)) != BUF_INVALID_INDEX, "Invalid Base Address");
+	ASSERT((index = BUFfind_index_of(basePtr, comparer)) != BUF_INVALID_INDEX, "Invalid Base Address\n");
 
 	allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, index);
-	ASSERT(data != NULL, "allocationData_t* data == NULL");
-	ASSERT(data->basePtr == basePtr, "data->basePtr != basePtr");
+	ASSERT(data != NULL, "allocationData_t* data == NULL\n");
+	ASSERT(data->basePtr == basePtr, "data->basePtr != basePtr\n");
 	//TODO: replace data->basePtr - 1 with &HEAD_BYTE(basePtr)
-	ASSERT((data->basePtr - 1 + data->size) >= bytePtr, "Out of bound memory access! (data->basePtr + data->size) =< bytePt");
-	ASSERT(data->basePtr <= bytePtr, "Out of bound memory access! data->basePtr > bytePtr");
+	ASSERT((data->basePtr - 1 + data->size) >= bytePtr, "Out of bound memory access! (data->basePtr + data->size) =< bytePt\n");
+	ASSERT(data->basePtr <= bytePtr, "Out of bound memory access! data->basePtr > bytePtr\n");
 	BUFpop_binded();
 	return bytePtr;
 }
 
 function_signature_void(void, safe_memory_init)
 {
-	ASSERT(allocationList == BUF_INVALID, "allocationList is already initialized");
+	ASSERT(allocationList == BUF_INVALID, "allocationList is already initialized\n");
 	allocationList = BUFcreate(NULL, sizeof(allocationData_t), 0, 0);
 }
 
 function_signature_void(void, safe_memory_terminate)
 {
-	ASSERT(allocationList != BUF_INVALID, "allocationList is already terminated");
+	ASSERT(allocationList != BUF_INVALID, "allocationList is already terminated\n");
 	BUFpush_binded();
 	BUFbind(allocationList);
 	BUFfree();
@@ -170,13 +164,13 @@ function_signature_void(void, safe_memory_terminate)
 // #ifdef SAFE_MEMORY_DEBUG
 // function_signature(u64, should_be_greater_than_word_size, u64 size)
 // {
-// 	// ASSERT(size > sizeof(u64), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)");
+// 	// ASSERT(size > sizeof(u64), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)\n");
 // 	return size;
 // }
 
 // function_signature(u64, should_be_equal_to_word_size, u64 size)
 // {
-// 	// ASSERT(size == sizeof(u64), "size != sizeof(u64)");
+// 	// ASSERT(size == sizeof(u64), "size != sizeof(u64)\n");
 // 	return size;
 // }
 // #endif
