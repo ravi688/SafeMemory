@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <memory.h>
-#include <buffer.h>
+#include <bufferlib/buffer.h>
 
 #define SAFE_MEMORY_IMPLEMENTATION
 #include <safe_memory/safe_memory.h>
