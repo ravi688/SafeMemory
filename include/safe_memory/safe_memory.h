@@ -3,11 +3,7 @@
 
 #include <safe_memory/defines.h>
 
-#ifdef __cplusplus
-#	include <cstdlib>
-#else
-#	include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #ifdef GLOBAL_RELEASE
 #	ifndef SAFE_MEMORY_RELEASE
@@ -62,26 +58,26 @@ extern "C" {
 #define instantiate_declaration_checked_array(T) instantiate_declaration_safe_array(T)
 
 #define safe_memory_init(...) define_alias_function_void_macro(safe_memory_init)
-function_signature_void(void, safe_memory_init);
+SAFE_MEMORY_API function_signature_void(void, safe_memory_init);
 
 #define safe_memory_terminate(...) define_alias_function_void_macro(safe_memory_terminate)
-function_signature_void(void, safe_memory_terminate);
+SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate);
 
 #define safe_alloca(size) register_stack_allocation(alloca(1 + (size)) + 1, (size))
 #define safe_malloc(size) register_heap_allocation(malloc(1 + (size)) + 1, (size))
 
 #define safe_free(...) define_alias_function_macro(safe_free, __VA_ARGS__)
-function_signature(void, safe_free, void* basePtr);
+SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr);
 
 #define safe_check(...) define_alias_function_macro(safe_check, __VA_ARGS__)
-function_signature(void*, safe_check, void* bytePtr, void* basePtr);
+SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, void* basePtr);
 
 
 /*Internal*/
 #define register_stack_allocation(...) define_alias_function_macro(register_stack_allocation, __VA_ARGS__)
-function_signature(void*, register_stack_allocation, void* basePtr, u64 size);
+SAFE_MEMORY_API function_signature(void*, register_stack_allocation, void* basePtr, u64 size);
 #define register_heap_allocation(...) define_alias_function_macro(register_heap_allocation, __VA_ARGS__)
-function_signature(void*, register_heap_allocation, void* basePtr, u64 size);
+SAFE_MEMORY_API function_signature(void*, register_heap_allocation, void* basePtr, u64 size);
 
 #ifdef __cplusplus
 }
