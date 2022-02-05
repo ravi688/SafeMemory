@@ -2,7 +2,6 @@
 #pragma once
 
 #include <safe_memory/template_defintions.h>
-
 #include <safe_memory/defines.h>
 
 #ifdef __cplusplus
@@ -26,7 +25,7 @@ instantiate_implementation_safe_array(double);
 instantiate_implementation_safe_array(u64);
 instantiate_implementation_safe_array(s64);
 
-float* safe_array(float)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API float* safe_array(float)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -42,7 +41,7 @@ float* safe_array(float)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-char* safe_array(char)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API char* safe_array(char)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -58,7 +57,7 @@ char* safe_array(char)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-u8* safe_array(u8)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API u8* safe_array(u8)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -73,7 +72,7 @@ u8* safe_array(u8)(void* buffer, u64 count, ...)
 	va_end(args);
 	return buffer;
 }
-u16* safe_array(u16)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API u16* safe_array(u16)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -89,7 +88,7 @@ u16* safe_array(u16)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-u32* safe_array(u32)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API u32* safe_array(u32)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -105,7 +104,7 @@ u32* safe_array(u32)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-s8* safe_array(s8)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API s8* safe_array(s8)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -121,7 +120,7 @@ s8* safe_array(s8)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-s16* safe_array(s16)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API s16* safe_array(s16)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);
@@ -137,7 +136,7 @@ s16* safe_array(s16)(void* buffer, u64 count, ...)
 	return buffer;
 }
 
-s32* safe_array(s32)(void* buffer, u64 count, ...)
+SAFE_MEMORY_API s32* safe_array(s32)(void* buffer, u64 count, ...)
 {
 	va_list args;
 	va_start(args, count);

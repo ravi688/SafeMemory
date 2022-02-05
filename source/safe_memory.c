@@ -2,12 +2,13 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <memory.h>
-#include <buffer.h>
+#include <bufferlib/buffer.h>
 
 #define SAFE_MEMORY_IMPLEMENTATION
 #include <safe_memory/safe_memory.h>
 
 #include <safe_memory/assert.h>
+#include <safe_memory/defines.h>
 
 static pBUFFER allocationList = BUF_INVALID;
 
@@ -21,23 +22,23 @@ typedef struct
 
 static bool comparer(void* basePtr, void* data);
 
-function_signature(static void*, register_allocation, void* basePtr, u64 size);
+static function_signature(void*, register_allocation, void* basePtr, u64 size);
 #define register_allocation(...) define_alias_function_macro(register_allocation, __VA_ARGS__)
 
 
-function_signature(void*, register_stack_allocation, void* basePtr, u64 size)
+SAFE_MEMORY_API function_signature(void*, register_stack_allocation, void* basePtr, u64 size)
 {
 	HEAD_BYTE(basePtr) = 0;		//stack allocation
 	return register_allocation(basePtr, size);
 }
 
-function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
+SAFE_MEMORY_API function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
 {
 	HEAD_BYTE(basePtr) = 1;		//heap allocation
 	return register_allocation(basePtr, size);
 }
 
-function_signature(static void*, register_allocation, void* basePtr, u64 size)
+static function_signature(void*, register_allocation, void* basePtr, u64 size)
 {
 	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL\n", size);
 	BUFpush_binded();
@@ -66,7 +67,7 @@ static bool comparer(void* basePtr, void* data)
 	return basePtr == (((allocationData_t*)(data))->basePtr);
 }
 
-function_signature(void, safe_free, void* basePtr)
+SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
@@ -79,7 +80,7 @@ function_signature(void, safe_free, void* basePtr)
 	BUFpop_binded();
 }
 
-function_signature(void*, safe_check, void* bytePtr, void* basePtr)
+SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 {
 	ASSERT(bytePtr != NULL, "bytePtr is NULL\n");
 	ASSERT(basePtr != NULL, "basePtr is NULL\n");
@@ -98,13 +99,13 @@ function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 	return bytePtr;
 }
 
-function_signature_void(void, safe_memory_init)
+SAFE_MEMORY_API function_signature_void(void, safe_memory_init)
 {
 	ASSERT(allocationList == BUF_INVALID, "allocationList is already initialized\n");
 	allocationList = BUFcreate(NULL, sizeof(allocationData_t), 0, 0);
 }
 
-function_signature_void(void, safe_memory_terminate)
+SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate)
 {
 	ASSERT(allocationList != BUF_INVALID, "allocationList is already terminated\n");
 	BUFpush_binded();
