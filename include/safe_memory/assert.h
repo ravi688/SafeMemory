@@ -1,15 +1,9 @@
 
 #pragma once
 
-#ifdef __cplusplus
-#	include <cstdio>
-#	include <cstdarg>
-#	include <cstdlib>
-#else
-#	include <stdio.h>
-#	include <stdarg.h>
-#	include <stdlib.h>
-#endif
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 #include <calltrace/calltrace.h>
 
 #ifdef ASSERT
