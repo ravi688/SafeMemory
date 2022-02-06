@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#define safe_array(T) template(safe_array, T)
+#define safe_array(T) c_template(safe_array, T)
 #define instantiate_declaration_safe_array(T) SAFE_MEMORY_API T* safe_array(T)(void* buffer, u64 count, ...)
 #define instantiate_implementation_safe_array(T) SAFE_MEMORY_API T* safe_array(T)(void* buffer, u64 count, ...)\
 {\
