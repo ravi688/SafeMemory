@@ -1,4 +1,18 @@
 
+/*
+	Author: Ravi Prakash Singh (rp0412204@gmail.com)
+	---------------------------
+	DOCUMENTATION (Safe Memory: A memory sandboxing library)
+	---------------------------
+	
+	SafeMemory is a memory sandboxing library which doesn't actually sandboxes anything at the system level,
+	However it does records the activities related to memory allocation, dereferences, and deallocations.
+
+	
+
+ */
+
+
 #pragma once
 
 #include <safe_memory/defines.h>
@@ -44,11 +58,6 @@
 #include <safe_memory/template_instantiations.h>
 
 BEGIN_CPP_COMPATIBLE
-
-/*	registers the memory block referenced by 'basePtr' with size 'size 
-	returns: the same ptr 'basePtr'
- */
-#define checked(basePtr, size) register_stack_allocation((void*)(basePtr), size)
 
 /*	dereferences the memory referenced by 'basePtr + index' while checking if the memory reference is a valid reference 
 	returns: *(basePtr + index)

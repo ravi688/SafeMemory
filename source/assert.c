@@ -1,8 +1,7 @@
 #include <safe_memory/assert.h>
+#include <common/third_party/debug_break.h>
 
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 void __safe_memory_assert(u32 line, const char* function, const char* file, u64 assertion, ...)
 {
@@ -13,5 +12,6 @@ void __safe_memory_assert(u32 line, const char* function, const char* file, u64 
 	if(assertion & (1ULL << 16)) format = va_arg(args, const char*);
 	debug_logv("[Assertion Failed] [Safe Memory] ", line, function, file, format, args);
 	va_end(args);
-	exit(0);
+
+	debug_break();;
 }
