@@ -40,12 +40,12 @@ SAFE_MEMORY_API function_signature(void*, register_heap_allocation, void* basePt
 
 static function_signature(void*, register_allocation, void* basePtr, u64 size)
 {
-	ASSERT(basePtr != NULL, "Allocation failed for %u bytes, basePtr == NULL\n", size);
+	ASSERT(DESCRIPTION(basePtr != NULL), "Allocation failed for %u bytes, basePtr == NULL", size);
 	BUFpush_binded();
 	BUFbind(allocationList);
 	buf_ucount_t result = BUFfind_index_of(basePtr, comparer);
 	#ifndef SAFE_MEMORY_ALREADY_IN_USE_IGNORE
-	ASSERT(result == BUF_INVALID_INDEX, "%p is already in use!\n", basePtr);
+	ASSERT(DESCRIPTION(result == BUF_INVALID_INDEX), "%p is already in use!", basePtr);
 	#else
 	if(result != BUF_INVALID_INDEX)
 	{
@@ -71,43 +71,43 @@ SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, "Invalid Base Address\n");
+	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, "Invalid Base Address");
 	if(HEAD_BYTE(basePtr))
 		free(&HEAD_BYTE(basePtr)); 
 	
 	bool result = BUFremove(basePtr, comparer);
-	ASSERT(result == true, "Failed to remove Base Address %p from allocationList\n", basePtr);
+	ASSERT(DESCRIPTION(result == true), "Failed to remove Base Address %p from allocationList", basePtr);
 	BUFpop_binded();
 }
 
 SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, void* basePtr)
 {
-	ASSERT(bytePtr != NULL, "bytePtr is NULL\n");
-	ASSERT(basePtr != NULL, "basePtr is NULL\n");
+	ASSERT(DESCRIPTION(bytePtr != NULL), "bytePtr is NULL");
+	ASSERT(DESCRIPTION(basePtr != NULL), "basePtr is NULL");
 	BUFpush_binded();
 	BUFbind(allocationList);
 	buf_ucount_t index;
-	ASSERT((index = BUFfind_index_of(basePtr, comparer)) != BUF_INVALID_INDEX, "Invalid Base Address\n");
+	ASSERT((index = BUFfind_index_of(basePtr, comparer)) != BUF_INVALID_INDEX, "Invalid Base Address");
 
 	allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, index);
-	ASSERT(data != NULL, "allocationData_t* data == NULL\n");
-	ASSERT(data->basePtr == basePtr, "data->basePtr != basePtr\n");
+	ASSERT(DESCRIPTION(data != NULL), "allocationData_t* data == NULL");
+	ASSERT(DESCRIPTION(data->basePtr == basePtr), "data->basePtr != basePtr");
 	//TODO: replace data->basePtr - 1 with &HEAD_BYTE(basePtr)
-	ASSERT((data->basePtr - 1 + data->size) >= bytePtr, "Out of bound memory access! (data->basePtr + data->size) =< bytePt\n");
-	ASSERT(data->basePtr <= bytePtr, "Out of bound memory access! data->basePtr > bytePtr\n");
+	ASSERT(DESCRIPTION((data->basePtr - 1 + data->size) >= bytePtr), "Out of bound memory access! (data->basePtr + data->size) =< bytePt");
+	ASSERT(DESCRIPTION(data->basePtr <= bytePtr), "Out of bound memory access! data->basePtr > bytePtr");
 	BUFpop_binded();
 	return bytePtr;
 }
 
 SAFE_MEMORY_API function_signature_void(void, safe_memory_init)
 {
-	ASSERT(allocationList == BUF_INVALID, "allocationList is already initialized\n");
+	ASSERT(DESCRIPTION(allocationList == BUF_INVALID), "allocationList is already initialized");
 	allocationList = BUFcreate(NULL, sizeof(allocationData_t), 0, 0);
 }
 
 SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate)
 {
-	ASSERT(allocationList != BUF_INVALID, "allocationList is already terminated\n");
+	ASSERT(DESCRIPTION(allocationList != BUF_INVALID), "allocationList is already terminated");
 	BUFpush_binded();
 	BUFbind(allocationList);
 	BUFfree();
@@ -165,13 +165,13 @@ SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate)
 // #ifdef SAFE_MEMORY_DEBUG
 // function_signature(u64, should_be_greater_than_word_size, u64 size)
 // {
-// 	// ASSERT(size > sizeof(u64), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)\n");
+// 	// ASSERT(DESCRIPTION(size > sizeof(u64)), "You should use checked_array instead of checked_struct_array; size > sizeof(u64)");
 // 	return size;
 // }
 
 // function_signature(u64, should_be_equal_to_word_size, u64 size)
 // {
-// 	// ASSERT(size == sizeof(u64), "size != sizeof(u64)\n");
+// 	// ASSERT(DESCRIPTION(size == sizeof(u64)), "size != sizeof(u64)");
 // 	return size;
 // }
 // #endif
