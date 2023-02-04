@@ -18,8 +18,8 @@ EXECUTABLE_NAME = main
 EXTERNAL_INCLUDES = 
 EXTERNAL_LIBS = 
 
-DEPENDENCIES = BufferLib TemplateSystem
-DEPENDENCY_LIBS = BufferLib/lib/bufferlib.a
+DEPENDENCIES = BufferLib TemplateSystem Common
+DEPENDENCY_LIBS = BufferLib/lib/bufferlib.a Common/lib/common.a
 DEPENDENCIES_DIR = ./dependencies
 SHARED_DEPENDENCIES = CallTrace
 SHARED_DEPENDENCY_LIBS = CallTrace/lib/calltrace.a
@@ -183,6 +183,7 @@ debug: $(TARGET)
 
 
 %.o : %.c
+	@echo [Log] Compiling $^ to $@
 	$(COMPILER) $(COMPILER_FLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 %.a:
@@ -232,6 +233,7 @@ bin-clean:
 	@echo [Log] Binaries cleaned successfully!
 	$(MAKE) --directory=./dependencies/BufferLib clean
 	$(MAKE) --directory=./shared-dependencies/CallTrace clean
+	$(MAKE) --directory=./dependencies/Common clean
 #-------------------------------------------
 
 
