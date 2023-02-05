@@ -67,7 +67,7 @@ BEGIN_CPP_COMPATIBLE
 /*	checks if the memory referenced by 'basePtr + index' is a valid memory reference
 	returns: basePtr + index
  */
-#define checked_refp(type, basePtr, index) ((type*)safe_check((void*)((basePtr) + (index)), (void*)(basePtr)))
+#define checked_refp(type, basePtr, index) ((type*)safe_check((void*)((basePtr) + (index) * sizeof(type)), sizeof(type), (void*)(basePtr)))
 
 /* 	allocates a memory block on the heap with size 'size' while enabling internal memory safety flags */
 #define checked_malloc(size) safe_malloc(size)
@@ -109,7 +109,7 @@ SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr);
 	returns: the same ptr 'bytePtr'
  */
 #define safe_check(...) define_alias_function_macro(safe_check, __VA_ARGS__)
-SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, void* basePtr);
+SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, u32 size, void* basePtr);
 
 
 /*Internal*/

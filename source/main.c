@@ -29,9 +29,12 @@ int main(int argc, char** argv)
 	for(u64 i = 0; i < 2; i++)
 		printf("Value: %u\n", values[i]);
 
-	register_stack_allocation(NULL, 0);
+	checked_ref(Double, values, 0) = (Double) { };
 
 	float* fvalues = checked_array(float, 2, 4.0f, 5.5f);
+
+	safe_free(fvalues);
+
 	for(u64 i = 0; i < 2; i++)
 		printf("Value: %f\n", fvalues[i]);
 	safe_memory_terminate();

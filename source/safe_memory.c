@@ -98,7 +98,7 @@ SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX, 
+	ASSERT(DESCRIPTION(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX), 
 		"the memory block at address %p you are trying to free is not valid\n"
 		"It happens due to one or more of the following cases:\n"
 		"\t1. You are trying to free a memory block which is not allocated using safe_alloca, safe_malloca, checked_alloca, or checked_malloca\n"
@@ -114,26 +114,44 @@ SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
 	BUFpop_binded();
 }
 
-SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, void* basePtr)
+static bool _comparer(void* pair, void* data)
+{
+	_assert(sizeof(void*) == sizeof(u64));
+	void* ptr = CAST_TO(void*, DEREF_TO(u64, pair));
+	u32 size = DEREF_TO(u32, pair + sizeof(void*));
+	allocationData_t* alloc_data = CAST_TO(allocationData_t*, data);
+	return (ptr >= alloc_data->basePtr) && ((ptr + size) <= (alloc_data->basePtr + alloc_data->size));
+}
+
+static allocationData_t* find_allocation_for_address(void* bytePtr, u32 size)
+{
+	struct pair_t { void* ptr; u32 size; } pair = { bytePtr, size };
+	buf_ucount_t index = BUFfind_index_of(&pair, _comparer);
+	return (index == BUF_INVALID_INDEX) ? NULL : BUFget_ptr_at_typeof(allocationData_t, index);
+}
+
+SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, u32 size, void* basePtr)
 {
 	ASSERT(DESCRIPTION(bytePtr != NULL), "the memory reference pointer 'bytePtr' is not a valid pointer as it holds a NULL value");
-	ASSERT(DESCRIPTION(basePtr != NULL), "the memory block pointer (base pointer) 'basePtr' is not a valid poitner as it holds a NULL value");
 	BUFpush_binded();
 	BUFbind(allocationList);
-	buf_ucount_t index;
-	ASSERT((index = BUFfind_index_of(basePtr, comparer)) != BUF_INVALID_INDEX, 
-		"the memory block at address %p has never been registered in the safe memory sandbox\n"
-		"but you are still trying to reference a sub-block at address %p in that memory block\n"
-		, basePtr, bytePtr);
 
-	allocationData_t* data = BUFget_ptr_at_typeof(allocationData_t, index);
-	ASSERT(DESCRIPTION(data != NULL), "data == NULL, allocationData_t for the memory block at address %p is not found due to unkown reason", basePtr);
-	ASSERT(DESCRIPTION(data->basePtr == basePtr), "data->basePtr != basePtr, allocationData for the memory block at address %p is corrupt due to unknown reason", basePtr);
-	//TODO: replace data->basePtr - 1 with &ALLOCATION_TYPE(basePtr)
-	ASSERT(DESCRIPTION(((data->basePtr - HEAD_SIZE + data->size) >= bytePtr) && (data->basePtr <= bytePtr)), 
-		"invalid memory reference at %p (out of bound memory access)\n"
-		"you are trying to access the memory at adress %p within a memory block at address %p with size %u bytes which doesn't contain that address",
-		bytePtr, bytePtr, basePtr, data->size);
+	if(basePtr != NULL)
+		ASSERT(DESCRIPTION(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX), 
+			"the memory block at address %p has never been registered in the safe memory sandbox\n"
+			"but you are still trying to reference a sub-block at address %p in that memory block"
+			, basePtr, bytePtr);
+
+	allocationData_t* data = find_allocation_for_address(bytePtr, size);
+
+	if((basePtr != NULL) && (data != NULL))
+		ASSERT(DESCRIPTION(data->basePtr == basePtr),
+			"the memory you are trying to reference %p is valid but it is not contained in the requested memory block at the address %p\n"
+			"instead it is located in the memory block at address %p"
+			, bytePtr, basePtr, data->basePtr);
+
+	ASSERT(DESCRIPTION(data != NULL), "invalid memory reference range [%p, %p] (size: %u), out of bound access", bytePtr, bytePtr + size - 1, size);
+
 	BUFpop_binded();
 	return bytePtr;
 }
@@ -153,7 +171,7 @@ SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate)
 	/* free the memory allocations which were not freed by the user */
 	buf_ucount_t allocation_count = BUFget_element_count();
 	for(buf_ucount_t i = 0; i < allocation_count; i++)
-		safe_free(BUFget_top());
+		safe_free(CAST_TO(allocationData_t*, BUFget_top())->basePtr);
 
 	BUFfree();
 	BUFpop_binded();
