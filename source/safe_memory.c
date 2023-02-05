@@ -52,7 +52,12 @@ SAFE_MEMORY_API function_signature(void*, register_heap_allocation, void* basePt
 
 static function_signature(void*, register_allocation, void* basePtr, u64 size)
 {
-	ASSERT(DESCRIPTION((basePtr != NULL) && (size != 0)), 
+	ASSERT(DESCRIPTION((basePtr != NULL)
+	#ifndef SAFE_MEMORY_ZERO_SIZED_ALLOCATION_IGNORE
+	 && (size != 0)
+	#endif /* SAFE_MEMORY_ZERO_SIZED_ALLOCATION_IGNORE */
+	 )
+	, 
 		"Allocation registration failed for the memory block at %p and size %u bytes\n"
 		"Either the memory address equal to NULL or the size of the memory block is 0\n"
 		"It happens due one or more of the following cases:\n"
@@ -80,7 +85,7 @@ static function_signature(void*, register_allocation, void* basePtr, u64 size)
 		BUFpop_binded();
 		return basePtr;
 	}
-	#endif
+	#endif /* SAFE_MEMORY_ALREADY_IN_USE_IGNORE */
 
 	/* otherwise register a new allocation data */
 	allocationData_t data =  { basePtr, size };
