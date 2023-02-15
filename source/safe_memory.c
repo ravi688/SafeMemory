@@ -17,7 +17,9 @@ typedef enum allocation_type_t
 	/* memory block allocated on the stack */
 	ALLOCATION_TYPE_STACK,
 	/* memory block allocated on the heap */
-	ALLOCATION_TYPE_HEAP
+	ALLOCATION_TYPE_HEAP,
+	/* aligned memory block allocated on the heap */
+	ALLOCATION_TYPE_ALIGNED_HEAP
 } allocation_type_t;
 
 typedef struct 
@@ -26,7 +28,14 @@ typedef struct
 	u64 size;
 } allocationData_t;
 
-#define ALLOCATION_TYPE(basePtr) (*(u8*)((void*)basePtr - HEAD_SIZE))
+enum
+{
+	ALLOCATION_TYPE_OFFSET = 1,
+	ALLOCATION_SIZE_OFFSET = 4
+};
+
+#define ALLOCATION_TYPE(basePtr) (*(u8*)((void*)(basePtr) - ALLOCATION_TYPE_OFFSET))
+#define ALLOCATION_SIZE(basePtr) (*(u32*)((void*)(basePtr) - ALLOCATION_SIZE_OFFSET))
 
 static bool comparer(void* basePtr, void* data);
 
@@ -36,7 +45,7 @@ static function_signature(void*, register_allocation, void* basePtr, u64 size);
 
 SAFE_MEMORY_API function_signature(void*, register_stack_allocation, void* basePtr, u64 size)
 {
-	if(basePtr != NULL)
+	if((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL))
 		ALLOCATION_TYPE(basePtr) = ALLOCATION_TYPE_STACK;
 	/* if basePtr == NULL then let the assertion happen in the register_allocation function call */
 	return register_allocation(basePtr, size);
@@ -44,15 +53,33 @@ SAFE_MEMORY_API function_signature(void*, register_stack_allocation, void* baseP
 
 SAFE_MEMORY_API function_signature(void*, register_heap_allocation, void* basePtr, u64 size)
 {
-	if(basePtr != NULL)
+	if((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL))
 		ALLOCATION_TYPE(basePtr) = ALLOCATION_TYPE_HEAP;
 	/* if basePtr == NULL then let the assertion happen in the register_allocation function call */
 	return register_allocation(basePtr, size);
 }
 
+SAFE_MEMORY_API function_signature(void*, register_aligned_heap_allocation, void* basePtr, u64 size)
+{
+	if((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL))
+		ALLOCATION_TYPE(basePtr) = ALLOCATION_TYPE_ALIGNED_HEAP;
+	/* if basePtr == NULL then let the assertion happen in the register_allocation function call */
+	return register_allocation(basePtr, size);
+}
+
+SAFE_MEMORY_API function_signature(void*, register_aligned_heap_reallocation, void* basePtr, u64 size, u32 align)
+{
+	BUFpush_binded();
+	BUFbind(allocationList);
+	BUFremove(basePtr, comparer);
+	void* ptr = register_allocation(basePtr, size);
+	BUFpop_binded();
+	return ptr;
+}
+
 static function_signature(void*, register_allocation, void* basePtr, u64 size)
 {
-	ASSERT(DESCRIPTION((basePtr != NULL)
+	ASSERT(DESCRIPTION(((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL))
 	#ifndef SAFE_MEMORY_ZERO_SIZED_ALLOCATION_IGNORE
 	 && (size != 0)
 	#endif /* SAFE_MEMORY_ZERO_SIZED_ALLOCATION_IGNORE */
@@ -88,6 +115,7 @@ static function_signature(void*, register_allocation, void* basePtr, u64 size)
 	#endif /* SAFE_MEMORY_ALREADY_IN_USE_IGNORE */
 
 	/* otherwise register a new allocation data */
+	ALLOCATION_SIZE(basePtr) = size;
 	allocationData_t data =  { basePtr, size };
 	BUFpush(&data);
 	BUFpop_binded();
@@ -99,24 +127,41 @@ static bool comparer(void* basePtr, void* data)
 	return basePtr == (((allocationData_t*)(data))->basePtr);
 }
 
-SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
+SAFE_MEMORY_API function_signature(bool, safe_silent_free, void* basePtr)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
-	ASSERT(DESCRIPTION(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX), 
+
+	bool is_valid = BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX;
+	
+	if(!is_valid)
+		return false;
+	
+	switch(ALLOCATION_TYPE(basePtr))
+	{
+		case ALLOCATION_TYPE_HEAP:
+			free(&ALLOCATION_TYPE(basePtr)); 
+			break;
+		case ALLOCATION_TYPE_ALIGNED_HEAP:
+			_aligned_free(&ALLOCATION_TYPE(basePtr));
+	}
+
+	bool result = BUFremove(basePtr, comparer);
+	ASSERT(DESCRIPTION(result == true), "Failed to remove Base Address %p from allocationList", basePtr);
+	
+	BUFpop_binded();
+	return is_valid;
+}
+
+SAFE_MEMORY_API function_signature(void, safe_free, void* basePtr)
+{
+	bool result = safe_silent_free(basePtr);
+	ASSERT(DESCRIPTION(result = true), 
 		"the memory block at address %p you are trying to free is not valid\n"
 		"It happens due to one or more of the following cases:\n"
 		"\t1. You are trying to free a memory block which is not allocated using safe_alloca, safe_malloca, checked_alloca, or checked_malloca\n"
 		"\t2. You are trying to free a memory block which has already been freed using safe_free()."
 		, basePtr);
-
-	/* if the memory block had been allocated on the heap then free it */
-	if(ALLOCATION_TYPE(basePtr) == ALLOCATION_TYPE_HEAP)
-		free(&ALLOCATION_TYPE(basePtr)); 
-	
-	bool result = BUFremove(basePtr, comparer);
-	ASSERT(DESCRIPTION(result == true), "Failed to remove Base Address %p from allocationList", basePtr);
-	BUFpop_binded();
 }
 
 static bool _comparer(void* pair, void* data)
@@ -135,13 +180,41 @@ static allocationData_t* find_allocation_for_address(void* bytePtr, u32 size)
 	return (index == BUF_INVALID_INDEX) ? NULL : BUFget_ptr_at_typeof(allocationData_t, index);
 }
 
+SAFE_MEMORY_API function_signature(void, safe_memset, void* basePtr, int value, u32 size)
+{
+	ASSERT(DESCRIPTION((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL)), "pointer is NULL and doesn't point to a memory block allocated by safe memory sandbox");
+	ASSERT(DESCRIPTION(size != 0), "requested size is zero, nothing to memset");
+	BUFpush_binded();
+	BUFbind(allocationList);
+	allocationData_t* data = find_allocation_for_address(basePtr, size);
+	u32 _size = ALLOCATION_SIZE(data->basePtr) - (basePtr - data->basePtr);
+	ASSERT(DESCRIPTION(_size >= size),
+		"size of the memory block %u you are trying to memset is less than then size you specified %u",
+		_size, size);
+	memset(basePtr, value, size);
+	BUFpop_binded();
+}
+
+SAFE_MEMORY_API function_signature(void, safe_memcpy, void* dstPtr, const void* srcPtr, u32 size)
+{
+	u32 dstSize = ALLOCATION_SIZE(dstPtr);
+	u32 srcSize = ALLOCATION_SIZE(srcPtr);
+	ASSERT(DESCRIPTION(dstSize >= size), 
+		"invalid memory write, size of the destination memory block %u is less than the size you specified %u",
+		dstSize, dstSize, size);
+	ASSERT(DESCRIPTION(srcSize >= size),
+		"invalid memory read, the size of the source memory block %u is less than the size you specified %u",
+		srcSize, srcSize, size);
+	memcpy(dstPtr, srcPtr, size);
+}
+
 SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, u32 size, void* basePtr)
 {
 	ASSERT(DESCRIPTION(bytePtr != NULL), "the memory reference pointer 'bytePtr' is not a valid pointer as it holds a NULL value");
 	BUFpush_binded();
 	BUFbind(allocationList);
 
-	if(basePtr != NULL)
+	if((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL))
 		ASSERT(DESCRIPTION(BUFfind_index_of(basePtr, comparer) != BUF_INVALID_INDEX), 
 			"the memory block at address %p has never been registered in the safe memory sandbox\n"
 			"but you are still trying to reference a sub-block at address %p in that memory block"
@@ -149,7 +222,7 @@ SAFE_MEMORY_API function_signature(void*, safe_check, void* bytePtr, u32 size, v
 
 	allocationData_t* data = find_allocation_for_address(bytePtr, size);
 
-	if((basePtr != NULL) && (data != NULL))
+	if(((basePtr != NULL) && ((basePtr - HEAD_SIZE) != NULL)) && (data != NULL))
 		ASSERT(DESCRIPTION(data->basePtr == basePtr),
 			"the memory you are trying to reference %p is valid but it is not contained in the requested memory block at the address %p\n"
 			"instead it is located in the memory block at address %p"
