@@ -67,11 +67,11 @@ SAFE_MEMORY_API function_signature(void*, register_aligned_heap_allocation, void
 	return register_allocation(basePtr, size);
 }
 
-SAFE_MEMORY_API function_signature(void*, register_aligned_heap_reallocation, void* basePtr, u64 size, u32 align)
+SAFE_MEMORY_API function_signature(void*, register_aligned_heap_reallocation, void* oldPtr, void* basePtr, u64 size, u32 align)
 {
 	BUFpush_binded();
 	BUFbind(allocationList);
-	BUFremove(basePtr, comparer);
+	BUFremove(oldPtr, comparer);
 	void* ptr = register_allocation(basePtr, size);
 	BUFpop_binded();
 	return ptr;

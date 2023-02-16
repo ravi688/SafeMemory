@@ -72,6 +72,9 @@ BEGIN_CPP_COMPATIBLE
 /* allocates a memory block on the heap with size 'size' while enabling internal memory safety flags */
 #define checked_malloc(size) safe_malloc(size)
 
+/* reallocates a memory block on the heap with memory block referenced by 'old_ptr' and new size 'size' */
+#define checked_realloc(old_ptr, size) safe_realloc(old_ptr, size)
+
 /* allocates an aligned memory block on the heap with size 'size' and alignment 'align' while enabling internal memory safety flags */
 #define checked_aligned_malloc(size, align) safe_aligned_malloc(size, align)
 
@@ -116,14 +119,19 @@ SAFE_MEMORY_API function_signature_void(void, safe_memory_terminate);
 
 #define HEAD_SIZE 5 /* (1 byte + 4 byte) the size of the header appened at every allocated block */
 
+#define CLAMP(size) (((size) <= HEAD_SIZE) ? (HEAD_SIZE + 1) : (size))
+
 /* allocates a memory block on the stack with size 'size' and returns a pointer to it */
 #define safe_alloca(size) register_stack_allocation(alloca(HEAD_SIZE + (size)) + HEAD_SIZE, (size))
 /* allocates a memory block on the heap with size 'size' and returns a pointer to it */
 #define safe_malloc(size) register_heap_allocation(malloc(HEAD_SIZE + (size)) + HEAD_SIZE, (size))
+/* reallocates a memory block on the heap with old memory block referenced by 'old_ptr' and the new size 'size' */
+#define safe_realloc(old_ptr, size) register_aligned_heap_reallocation(old_ptr, realloc((old_ptr == NULL) ? NULL : (old_ptr - HEAD_SIZE), HEAD_SIZE + (size)) + HEAD_SIZE, (size), 0)
 /* allocates an aligned memory block on the heap with size 'size' and alignment 'align' and returns a pointer to it */
-#define safe_aligned_malloc(size, align) register_aligned_heap_allocation(_aligned_malloc(HEAD_SIZE + (size), (align) + HEAD_SIZE) + HEAD_SIZE, (size))
+#define safe_aligned_malloc(size, align) register_aligned_heap_allocation(_aligned_offset_malloc(CLAMP(size), (align), HEAD_SIZE) + HEAD_SIZE, (size))
 /* reallocates an aligned memory block on the heap with previous memory block referenced by 'old_ptr', new size 'size' and alignment 'align' and returns a pointer to it */
-#define safe_aligned_realloc(old_ptr, size, align) ((CAST_TO(u64, old_ptr) <= HEAD_SIZE) ? safe_aligned_malloc(size, align) : register_aligned_heap_reallocation(_aligned_realloc(old_ptr, HEAD_SIZE + (size), align + HEAD_SIZE) + HEAD_SIZE, (size), (align)))
+#define safe_aligned_realloc(old_ptr, size, align) register_aligned_heap_reallocation(old_ptr, _aligned_offset_realloc((old_ptr == NULL) ? NULL : (old_ptr - HEAD_SIZE), CLAMP(size), align, HEAD_SIZE) + HEAD_SIZE, (size), (align))
+// #define safe_aligned_realloc(old_ptr, size, align) ((CAST_TO(u64, old_ptr) <= HEAD_SIZE) ? safe_aligned_malloc(size, align) : register_aligned_heap_reallocation(_aligned_realloc(old_ptr, HEAD_SIZE + (size), align + HEAD_SIZE) + HEAD_SIZE, (size), (align)))
 /* frees a memory block already allocated (works for heap and stack both) */
 #define safe_aligned_free(...) safe_free(__VA_ARGS__)
 #define safe_free(...) define_alias_function_macro(safe_free, __VA_ARGS__)
@@ -169,6 +177,6 @@ SAFE_MEMORY_API function_signature(void*, register_aligned_heap_allocation, void
  	note: it does't returns the first parameter, instead it returns newly allocated memory block's address
  */
 #define register_aligned_heap_reallocation(...) define_alias_function_macro(register_aligned_heap_reallocation, __VA_ARGS__)
-SAFE_MEMORY_API function_signature(void*, register_aligned_heap_reallocation, void* basePtr, u64 size, u32 align);
+SAFE_MEMORY_API function_signature(void*, register_aligned_heap_reallocation, void* oldPtr, void* basePtr, u64 size, u32 align);
 
 END_CPP_COMPATIBLE
