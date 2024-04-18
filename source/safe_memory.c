@@ -9,6 +9,7 @@
 
 #include <safe_memory/assert.h>
 #include <safe_memory/defines.h>
+#include <common/platform.h> // PLATFORM_LINUX
 
 static pBUFFER allocationList = BUF_INVALID;
 
@@ -126,6 +127,10 @@ static bool comparer(void* basePtr, void* data)
 {
 	return basePtr == (((allocationData_t*)(data))->basePtr);
 }
+
+#ifdef PLATFORM_LINUX
+#	define _aligned_free(...) free(__VA_ARGS__)
+#endif
 
 SAFE_MEMORY_API function_signature(bool, safe_silent_free, void* basePtr)
 {
