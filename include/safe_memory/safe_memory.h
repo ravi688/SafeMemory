@@ -19,38 +19,9 @@
 
 #include <stdlib.h>
 
-#ifdef GLOBAL_RELEASE
-#	ifndef SAFE_MEMORY_RELEASE
-#		define SAFE_MEMORY_RELEASE
-#	endif
-#endif
-
-#ifdef GLOBAL_DEBUG
-#	ifndef SAFE_MEMORY_DEBUG
-#		define SAFE_MEMORY_DEBUG
-#	endif
-#endif
-
-#if defined(SAFE_MEMORY_RELEASE) && defined(SAFE_MEMORY_DEBUG)
-#	warning "Both SAFE_MEMORY_RELEASE and SAFE_MEMORY_DEBUG are defined; using SAFE_MEMORY_DEBUG"
-#	undef SAFE_MEMORY_RELEASE
-#endif
-
 #if !defined(SAFE_MEMORY_RELEASE) && !defined(SAFE_MEMORY_DEBUG)
 #	warning "None of SAFE_MEMORY_RELEASE or SAFE_MEMORY_DEBUG is defined; using SAFE_MEMORY_DEBUG"
 #	define SAFE_MEMORY_DEBUG
-#endif
-
-#ifdef SAFE_MEMORY_DEBUG
-#	ifndef CALLTRACE_DEBUG
-#		define CALLTRACE_DEBUG
-#	endif
-#endif
-
-#ifdef SAFE_MEMORY_RELEASE
-#	ifndef CALLTRACE_RELEASE
-#		define CALLTRACE_RELEASE
-#	endif
 #endif
 
 #include <calltrace/calltrace.h>
