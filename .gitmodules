@@ -1,12 +1,3 @@
-[submodule "dependencies/BufferLib"]
-	path = dependencies/BufferLib
-	url = https://github.com/ravi688/BufferLib
-[submodule "shared-dependencies/CallTrace"]
-	path = shared-dependencies/CallTrace
-	url = https://github.com/ravi688/CallTrace.git
 [submodule "dependencies/TemplateSystem"]
 	path = dependencies/TemplateSystem
 	url = https://github.com/ravi688/TemplateSystem.git
-[submodule "dependencies/Common"]
-	path = dependencies/Common
-	url = https://github.com/ravi688/Common

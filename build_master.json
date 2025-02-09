@@ -1,0 +1,37 @@
+{
+    "project_name" : "SafeMemory",
+    "canonical_name" : "safemem",
+    "description" : "Small Library for Safe Memory Operations",
+    "dependencies" : [ "common", "bufferlib", "calltrace" ],
+    "release_defines": [ "-DSAFE_MEMORY_RELEASE" ],
+    "debug_defines": [ "-DSAFE_MEMORY_DEBUG" ],
+    "install_header_dirs" : [ "include/safe_memory" ],
+    "include_dirs" : [ "include", "dependencies/TemplateSystem/include" ],
+    "targets" :
+    [
+        {
+            "name" : "safemem_static",
+            "is_static_library" : true,
+            "description" : "Static Library for Safe Memory",
+            "build_defines" : [ "-DSAFE_MEMORY_BUILD_STATIC_LIBRARY" ],
+            "use_defines" : [ "-DSAFE_MEMORY_USE_STATIC_LIBRARY" ]
+        },
+        {
+            "name" : "safemem_shared",
+            "is_shared_library" : true,
+            "description" : "Shared Library for Safe Memory",
+            "build_defines" : [ "-DSAFE_MEMORY_BUILD_SHARED_LIBRARY" ],
+            "use_defines" : [ "-DSAFE_MEMORY_USE_SHARED_LIBRARY" ]
+        },
+        {
+            "name" : "main",
+            "is_executable" : true,
+            "sources" : [ "source/main.c" ]
+        }
+    ],
+    "sources" :
+    [
+        "source/assert.c",
+        "source/safe_memory.c"
+    ]
+}
