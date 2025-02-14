@@ -75,7 +75,7 @@ sources_bm_internal__ = files(
 
 # Include directories
 inc_bm_internal__ = include_directories(
-'include', 'dependencies/TemplateSystem/include'
+'include'
 )
 
 # Library Install Directory
@@ -83,6 +83,7 @@ lib_install_dir_bm_internal__ = get_option('libdir')/'safemem'
 
 # Dependencies
 dependencies_bm_internal__ = [
+dependency('tempsys'),
 dependency('common'),
 dependency('bufferlib'),
 dependency('calltrace')
@@ -290,4 +291,5 @@ main = executable('main',
 #--------------------------------Header Intallation----------------------------------
 # Header installation
 install_subdir('include/safe_memory', install_dir : get_option('includedir'))
+
 
