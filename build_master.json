@@ -2,11 +2,11 @@
     "project_name" : "SafeMemory",
     "canonical_name" : "safemem",
     "description" : "Small Library for Safe Memory Operations",
-    "dependencies" : [ "common", "bufferlib", "calltrace" ],
+    "dependencies" : [ "tempsys", "common", "bufferlib", "calltrace" ],
     "release_defines": [ "-DSAFE_MEMORY_RELEASE" ],
     "debug_defines": [ "-DSAFE_MEMORY_DEBUG" ],
     "install_header_dirs" : [ "include/safe_memory" ],
-    "include_dirs" : [ "include", "dependencies/TemplateSystem/include" ],
+    "include_dirs" : [ "include" ],
     "targets" :
     [
         {
